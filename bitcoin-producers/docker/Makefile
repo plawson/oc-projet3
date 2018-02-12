@@ -1,5 +1,6 @@
 PROJECT=localhost:5000/plawson
 BTC_PRODUCERS=bitcoin-producers
+REGISTRY=192.168.1.101:5000/plawson
 
 all: build
 
@@ -17,12 +18,12 @@ clean:
 		kubectl delete deploy  $(DEPLOY_NAME); \
 	fi;
 
-deploy:
-	kubectl run $(BTC_PRODUCERS) --image=${PROJECT}/bitcoin-kafka-producers:latest \
+deploy: build push
+	kubectl run $(BTC_PRODUCERS) --image=${REGISTRY}/bitcoin-kafka-producers:latest \
 	--env="BTC_TX_TOPIC_NAME=btc_tx" \
 	--env="BTC_BLK_TOPIC_NAME=btc_blk" \
 	--env="BPI_TOPIC_NAME=bpi_eur" \
 	--env="BTC_ZK_STRING=zk-cs.default.svc.cluster.local:2181" \
 	--env="BTC_BROKERS=kafka-1.kafka-hs.default.svc.cluster.local:9093,kafka-2.kafka-hs.default.svc.cluster.local:9093,kafka-0.kafka-hs.default.svc.cluster.local:9093"
 
-.PHONY: all build push clean
+.PHONY: all build push clean deploy

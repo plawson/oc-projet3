@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+set -x
+
 function usage {
 	echo "$0: [-h] | --btc-tx-topic BTC_TX_TOPIC_NAME --btc-blk-topic BTC_BLK_TOPIC_NAME --bpi-topic BPI_TOPIC_NAME --zookeeper BTC_ZK_STRING --brokers BTC_BROKERS"
 	exit 1
@@ -75,10 +77,10 @@ cd /opt/kafka
 TOPIC_CMD="bin/kafka-topics.sh --zookeeper $BTC_ZK_STRING"
 
 # Create missing topics
-for topic in "$BTC_BLK_TOPIC_NAME $BPI_TOPIC_NAME"; do
+for topic in $BTC_BLK_TOPIC_NAME $BPI_TOPIC_NAME; do
     RESULT=$($TOPIC_CMD --list | egrep "^"$topic"$" 2>&1 1>/dev/null; echo $?)
     if [[ $RESULT -ne 0 ]]; then
-        $TOPIC_CMD --create --topic $topic --partitions 1 --replication_factor 2
+        $TOPIC_CMD --create --topic $topic --partitions 1 --replication-factor 2
         if [[ $? -ne 0 ]]; then
             echo "ERROR: Cannot create topic $topic"
             exit 1
@@ -88,7 +90,7 @@ done
 
 RESULT=$($TOPIC_CMD --list | egrep "^"$BTC_TX_TOPIC_NAME"$" 2>&1 1>/dev/null; echo $?)
 if [[ $RESULT -ne 0 ]]; then
-    $TOPIC_CMD --create --topic $BTC_TX_TOPIC_NAME --partitions 10 --replication_factor 2
+    $TOPIC_CMD --create --topic $BTC_TX_TOPIC_NAME --partitions 10 --replication-factor 2
     if [[ $? -ne 0 ]]; then
         echo "ERROR: Cannot create topic $BTC_TX_TOPIC_NAME"
         exit 1

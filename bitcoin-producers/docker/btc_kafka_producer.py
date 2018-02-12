@@ -12,7 +12,7 @@ import requests
 
 
 class Producer:
-    def __init_(self, brokers, topics):
+    def __init__(self, brokers, topics):
         self.logger = logging.getLogger('producer')
         self.logger.debug('brokers: {}'.format(brokers))
         self.logger.debug('Creating KafkaProducer')
@@ -22,15 +22,15 @@ class Producer:
         self.topics = topics
         for key, value in topics.items():
             self.logger.debug('{}: {}'.format(key, value))
-        self.bpi_retry = 0
+        self._bpi_retry = 0
 
     @property
     def bpi_retry(self):
-        return self.bpi_retry
+        return self._bpi_retry
 
     @bpi_retry.setter
     def bpi_retry(self, val):
-        self.bpi_retry = val
+        self._bpi_retry = val
 
     def process_inputs(self):
         ws = self.open_websocket_to_blockchain()
@@ -141,9 +141,12 @@ if __name__ == "__main__":
     logger.debug('Parsing arguments...')
     args = parser.parse_args()
 
+    for arg in vars(args):
+        logger.debug('key: {}, value: {}'.format(arg, getattr(args, arg)))
+
     logger.debug('Instantiating Producer')
-    producer = Producer(vars(args)['bokers'], {'btc-tx-topic': vars(args)['btc-tx-topic'],
-                                               'btc-blk-topic': vars(args)['btc-blk-topic'],
-                                               'bpi-topic': vars(args)['bpi-topic']})
+    producer = Producer(vars(args)['bokers'], {'btc-tx-topic': vars(args)['btc_tx_topic'],
+                                               'btc-blk-topic': vars(args)['btc_blk_topic'],
+                                               'bpi-topic': vars(args)['bpi_topic']})
     logger.info('Starting producer...')
     producer.process_inputs()
