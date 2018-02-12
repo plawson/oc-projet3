@@ -2,7 +2,7 @@ PROJECT=localhost:5000/plawson
 BTC_PRODUCERS=bitcoin-producers
 REGISTRY=192.168.1.101:5000/plawson
 
-all: build
+all: clean build push
 
 build:
 	docker build -t ${PROJECT}/bitcoin-kafka-producers:latest .
