@@ -9,12 +9,22 @@ import logging.config
 import json
 import websocket
 import requests
+import socket
 
 
 class Producer:
-    def __init__(self, brokers, topics):
+    def __init__(self, service_name, port, topics):
         self.logger = logging.getLogger('producer')
-        self.logger.debug('brokers: {}'.format(brokers))
+        self.logger.debug('service: {}'.format(service_name))
+        self.logger.debug('port: {}'.format(port))
+        self.logger.info('Retrieving brokers list...')
+        brokers = ""
+        (hostname, aliaslist, ipaddrlist) = socket.gethostbyname_ex(service_name)
+        for ipaddr in ipaddrlist:
+            (hostname, aliaslist, hostip) = socket.gethostbyaddr(ipaddr)
+            brokers += '{}:{},'.format(hostname, port)
+        brokers = brokers[:-1]
+        logger.info('bootstrap_servers: {}'.format(brokers))
         self.logger.debug('Creating KafkaProducer')
         self.producer = KafkaProducer(bootstrap_servers=brokers)
         if None is topics:
@@ -40,7 +50,7 @@ class Producer:
 
         self.logger.debug('Extracting BPI data 1...')
         bpi_data = self.extract_eur_index(self.get_bpi())
-        self.logger.info('Sending BPI record 1...')
+        self.logger.debug('Sending BPI record 1...')
         self.producer.send(self.topics['bpi-topic'], json.dumps(bpi_data).encode())
 
         while True:
@@ -54,7 +64,7 @@ class Producer:
             if time() - last_bpi_time >= 60:
                 self.logger.debug('Extracting BPI data...')
                 bpi_data = self.extract_eur_index(self.get_bpi())
-                self.logger.info('Sending BPI record...')
+                self.logger.debug('Sending BPI record...')
                 self.producer.send(self.topics['bpi-topic'], json.dumps(bpi_data).encode())
                 last_bpi_time = time()
 
@@ -89,7 +99,7 @@ class Producer:
 
                 blk_data = {'btc_timestamp': block_timestamp, 'blk_id': block_hash, 'blk_owner': block_found_by,
                             'blk_btc_reward': block_reward, 'blk_eur_reward': block_reward * bpi_data['rate_float']}
-                self.logger.info('Sending BTC Blk record...')
+                self.logger.debug('Sending BTC Blk record...')
                 self.producer.send(self.topics['bpi-topic'], json.dumps(blk_data).encode())
 
     def get_bpi(self):
@@ -136,7 +146,8 @@ if __name__ == "__main__":
     parser.add_argument('--btc-tx-topic', help="Topic name for bitcoin transaction", required=True)
     parser.add_argument('--btc-blk-topic', help="Topic name for new block", required=True)
     parser.add_argument('--bpi-topic', help="Topic name for bitcoin price index", required=True)
-    parser.add_argument('--bokers', help="Bootstrap servers", required=True)
+    parser.add_argument('--kafka-hs-service', help="Kafka kubernetes headless service name", required=True)
+    parser.add_argument('--kafka-broker-port', help="Kafka broker port", required=True)
 
     logger.debug('Parsing arguments...')
     args = parser.parse_args()
@@ -145,8 +156,9 @@ if __name__ == "__main__":
         logger.debug('key: {}, value: {}'.format(arg, getattr(args, arg)))
 
     logger.debug('Instantiating Producer')
-    producer = Producer(vars(args)['bokers'], {'btc-tx-topic': vars(args)['btc_tx_topic'],
-                                               'btc-blk-topic': vars(args)['btc_blk_topic'],
-                                               'bpi-topic': vars(args)['bpi_topic']})
+    producer = Producer(vars(args)['kafka_hs_service'], vars(args)['kafka_broker_port'],
+                        {'btc-tx-topic': vars(args)['btc_tx_topic'],
+                         'btc-blk-topic': vars(args)['btc_blk_topic'],
+                         'bpi-topic': vars(args)['bpi_topic']})
     logger.info('Starting producer...')
     producer.process_inputs()

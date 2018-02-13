@@ -3,7 +3,7 @@
 set -x
 
 function usage {
-	echo "$0: [-h] | --btc-tx-topic BTC_TX_TOPIC_NAME --btc-blk-topic BTC_BLK_TOPIC_NAME --bpi-topic BPI_TOPIC_NAME --zookeeper BTC_ZK_STRING --brokers BTC_BROKERS"
+	echo "$0: [-h] | --btc-tx-topic BTC_TX_TOPIC_NAME --btc-blk-topic BTC_BLK_TOPIC_NAME --bpi-topic BPI_TOPIC_NAME --zookeeper BTC_ZK_STRING --kafka-hs-service KAFKA_HS_SERVICE --kafka-broker-port KAFKA_BROKER_PORT"
 	exit 1
 }
 
@@ -32,8 +32,13 @@ do
 		shift # past argument
 		shift # past value
 		;;
-		--brokers)
-		BTC_BROKERS="$2"
+		--kafka-hs-service)
+		KAFKA_HS_SERVICE="$2"
+		shift # past argument
+		shift # past value
+		;;
+		--kafka-broker-port)
+		KAFKA_BROKER_PORT="$2"
 		shift # past argument
 		shift # past value
 		;;
@@ -54,7 +59,8 @@ BTC_TX_TOPIC_NAME="${BTC_TX_TOPIC_NAME// }"
 BTC_BLK_TOPIC_NAME="${BTC_BLK_TOPIC_NAME// }"
 BPI_TOPIC_NAME="${BPI_TOPIC_NAME// }"
 BTC_ZK_STRING="${BTC_ZK_STRING// }"
-BTC_BROKERS="${BTC_BROKERS// }"
+KAFKA_HS_SERVICE="${KAFKA_HS_SERVICE// }"
+KAFKA_BROKER_PORT="${KAFKA_BROKER_PORT// }"
 
 # Check input parameters
 if [[  -z "$BTC_TX_TOPIC_NAME" || -z "$BTC_BLK_TOPIC_NAME" || -z "$BPI_TOPIC_NAME" ]]; then
@@ -67,8 +73,13 @@ if [[ -z "$BTC_ZK_STRING" ]]; then
 	usage
 fi
 
-if [[ -z "$BTC_BROKERS" ]]; then
-    echo "ERROR: Brokers connect string is mandatory"
+if [[ -z "$KAFKA_HS_SERVICE" ]]; then
+    echo "ERROR: Kafka headless service name is mandatory"
+    usage
+fi
+
+if [[ -z "$KAFKA_BROKER_PORT" ]]; then
+    echo "ERROR: Kafka broker port is mandatory"
     usage
 fi
 
@@ -99,4 +110,4 @@ fi
 
 # Starting producers
 BTC_TOPICS="--btc-tx-topic $BTC_TX_TOPIC_NAME --btc-blk-topic $BTC_BLK_TOPIC_NAME --bpi-topic $BPI_TOPIC_NAME"
-/btc/btc_kafka_producer.py --bokers $BTC_BROKERS $BTC_TOPICS
+/btc/btc_kafka_producer.py --kafka-hs-service $KAFKA_HS_SERVICE --kafka-broker-port $KAFKA_BROKER_PORT $BTC_TOPICS

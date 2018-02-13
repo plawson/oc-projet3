@@ -19,11 +19,13 @@ clean:
 	fi;
 
 deploy: build push
+	$(eval CONTAINER_PORT=$(shell sh -c "kubectl get sts kafka -o jsonpath='{.spec.template.spec.containers[0].ports[0].containerPort}'"))
 	kubectl run $(BTC_PRODUCERS) --image=${REGISTRY}/bitcoin-kafka-producers:latest \
 	--env="BTC_TX_TOPIC_NAME=btc_tx" \
 	--env="BTC_BLK_TOPIC_NAME=btc_blk" \
 	--env="BPI_TOPIC_NAME=bpi_eur" \
 	--env="BTC_ZK_STRING=zk-cs.default.svc.cluster.local:2181" \
-	--env="BTC_BROKERS=kafka-1.kafka-hs.default.svc.cluster.local:9093,kafka-2.kafka-hs.default.svc.cluster.local:9093,kafka-0.kafka-hs.default.svc.cluster.local:9093"
+	--env="KAFKA_HS_SERVICE=kafka-hs"
+	--env="KAFKA_BROKER_PORT=$(CONTAINER_PORT)"
 
 .PHONY: all build push clean deploy
