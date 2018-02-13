@@ -24,7 +24,7 @@ class Producer:
             (hostname, aliaslist, hostip) = socket.gethostbyaddr(ipaddr)
             brokers += '{}:{},'.format(hostname, port)
         brokers = brokers[:-1]
-        logger.info('bootstrap_servers: {}'.format(brokers))
+        self.logger.info('bootstrap_servers: {}'.format(brokers))
         self.logger.debug('Creating KafkaProducer')
         self.producer = KafkaProducer(bootstrap_servers=brokers)
         if None is topics:
@@ -44,6 +44,8 @@ class Producer:
 
     def process_inputs(self):
         ws = self.open_websocket_to_blockchain()
+
+        self.logger.info('Producer started')
 
         last_ping_time = time()
         last_bpi_time = time()
@@ -87,7 +89,7 @@ class Producer:
                 tx_data = {'btc_timestamp': transaction_timestamp, 'tx_id': transaction_hash,
                            'tx_btc_amount': transaction_total_amount,
                            'tx_eur_amount': transaction_total_amount * bpi_data['rate_float']}
-                self.logger.info('Sending BTC Tx record...')
+                self.logger.debug('Sending BTC Tx record...')
                 self.producer.send(self.topics['btc-tx-topic'], json.dumps(tx_data).encode())
 
             # New block

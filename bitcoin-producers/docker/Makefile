@@ -25,7 +25,7 @@ deploy: build push
 	--env="BTC_BLK_TOPIC_NAME=btc_blk" \
 	--env="BPI_TOPIC_NAME=bpi_eur" \
 	--env="BTC_ZK_STRING=zk-cs.default.svc.cluster.local:2181" \
-	--env="KAFKA_HS_SERVICE=kafka-hs"
+	--env="KAFKA_HS_SERVICE=kafka-hs" \
 	--env="KAFKA_BROKER_PORT=$(CONTAINER_PORT)"
 
 .PHONY: all build push clean deploy
