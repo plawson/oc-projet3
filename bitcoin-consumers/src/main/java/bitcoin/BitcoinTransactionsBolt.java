@@ -37,18 +37,18 @@ public class BitcoinTransactionsBolt extends BaseRichBolt {
     @Override
     public void prepare(Map map, TopologyContext topologyContext, OutputCollector collector) {
         this.collector = collector;
-        LOGGER.debug("Creating REST High Level Client...");
+        LOGGER.info("Creating REST High Level Client...");
         RestClient restClient = RestClient.builder(new HttpHost(this.esHostname,
                 this.esPort, "http"))
                 .build();
         this.esClient = new RestHighLevelClient(restClient);
-        LOGGER.debug("REST High Level Client created.");
+        LOGGER.info("REST High Level Client created.");
     }
 
     @Override
     public void execute(Tuple input) {
 
-        LOGGER.debug("Executing tuple");
+        LOGGER.info("Executing tuple");
         try {
             this.process(input);
             this.collector.ack(input);
@@ -67,13 +67,13 @@ public class BitcoinTransactionsBolt extends BaseRichBolt {
         JSONParser jsonParser = new JSONParser();
         JSONObject obj = (JSONObject)jsonParser.parse(input.getStringByField("value"));
         Date btcTimestamp = new Date((Long)obj.get("btc_timestamp"));
-        LOGGER.debug("btcTimestamp: " + btcTimestamp);
+        LOGGER.info("btcTimestamp: " + btcTimestamp);
         String txId = (String)obj.get("tx_id");
-        LOGGER.debug("txId: " + txId);
+        LOGGER.info("txId: " + txId);
         Double txBtcAmount = (Double)obj.get("tx_btc_amount");
-        LOGGER.debug("txBtcAmount: " + txBtcAmount);
+        LOGGER.info("txBtcAmount: " + txBtcAmount);
         Double txEurAmount = (Double)obj.get("tx_eur_amount");
-        LOGGER.debug("txEurAmount: " + txEurAmount);
+        LOGGER.info("txEurAmount: " + txEurAmount);
 
         Map<String, Object> jsonMap = new HashMap<>();
         jsonMap.put("btc_timestamp", btcTimestamp);

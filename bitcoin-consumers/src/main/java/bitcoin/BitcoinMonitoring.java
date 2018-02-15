@@ -32,7 +32,7 @@ public class BitcoinMonitoring {
         // Parameters Map
         this.parameters = new HashMap<>();
         // Get topics information
-        LOG.debug("Getting Topics information...");
+        LOG.info("Getting Topics information...");
         this.parameters.put("btc-tx-topic", System.getenv("BTC_TX_TOPIC_NAME"));
         this.parameters.put("btc-blk-topic", System.getenv("BTC_BLK_TOPIC_NAME"));
         this.parameters.put("bpi-topic", System.getenv("BPI_TOPIC_NAME"));
@@ -46,8 +46,8 @@ public class BitcoinMonitoring {
             LOG.error("Error trying to get elasticsearch client service DNS name", e);
             throw new RuntimeException(e);
         }
-        this.parameters.put("es-service-dns-name", esServiceDnsName);
-        LOG.info("es-service-dns-name: " + this.parameters.get("es-service-dns-name"));
+        this.parameters.put("es-cs-service", esServiceDnsName);
+        LOG.info("es-cs-service: " + this.parameters.get("es-cs-service"));
         this.parameters.put("es-port", System.getenv("ES_PORT"));
         LOG.info("es-port: " + this.parameters.get("es-port"));
     }
@@ -69,17 +69,17 @@ public class BitcoinMonitoring {
 
         TopologyBuilder builder = new TopologyBuilder();
 
-        LOG.debug("Creating Kafka spout config builder...");
+        LOG.info("Creating Kafka spout config builder...");
         KafkaSpoutConfig.Builder<String, String> spoutConfigBuilder;
         spoutConfigBuilder = KafkaSpoutConfig.builder(this.parameters.get("brokers"),
                 this.parameters.get("btc-tx-topic"));
         spoutConfigBuilder.setGroupId("btc-tx-consumers");
-        LOG.debug("Building Kafka spout config builder...");
+        LOG.info("Building Kafka spout config builder...");
         KafkaSpoutConfig<String, String> spoutConfig = spoutConfigBuilder.build();
-        LOG.debug("Registering Kafka spout...");
+        LOG.info("Registering Kafka spout...");
         builder.setSpout("btc-tx-spout", new KafkaSpout<>(spoutConfig), 5).setNumTasks(5);
-        LOG.debug("Registering BitcoinTransactionsBolt...");
-        builder.setBolt("btc-tx-bolt", new BitcoinTransactionsBolt(this.parameters.get("es-service-dns-name"),
+        LOG.info("Registering BitcoinTransactionsBolt...");
+        builder.setBolt("btc-tx-bolt", new BitcoinTransactionsBolt(this.parameters.get("es-cs-service"),
                 this.parameters.get("es-port")), 5).setNumTasks(10)
                 .shuffleGrouping("btc-tx-spout");
 
@@ -88,9 +88,9 @@ public class BitcoinMonitoring {
         Config config = new Config();
         config.setMessageTimeoutSecs(60*30);
         config.setNumWorkers(3);
-        String topolotyName = "Bitcoin Transactions";
+        String topolotyName = "Bitcoin Transactions - " + System.currentTimeMillis();
 
-        LOG.debug("Submitting Bitcoin Transactions topology...");
+        LOG.info("Submitting Bitcoin Transactions topology...");
         if (args.length > 0 && args[0].equals("remote")) {
             StormSubmitter.submitTopology(topolotyName, config, topology);
         } else {
@@ -100,7 +100,7 @@ public class BitcoinMonitoring {
     }
 
     private String getKafkaBrokers() throws UnknownHostException {
-        LOG.debug("Retrieving brokers list");
+        LOG.info("Retrieving brokers list");
         StringBuilder brokers = new StringBuilder();
         InetAddress[] brokersAddresses = InetAddress.getAllByName(System.getenv("KAFKA_HS_SERVICE"));
         for (int i=0; i<brokersAddresses.length; i++) {
