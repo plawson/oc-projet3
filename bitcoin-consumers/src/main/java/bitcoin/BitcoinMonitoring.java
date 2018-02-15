@@ -39,6 +39,17 @@ public class BitcoinMonitoring {
         // Get Kafka brokers information
         this.parameters.put("brokers", getKafkaBrokers());
         LOG.info("bootstrap_servers: " + this.parameters.get("brokers"));
+        String esServiceDnsName;
+        try {
+            esServiceDnsName = InetAddress.getByName(System.getenv("ES_CS_SERVICE")).getHostName();
+        } catch (UnknownHostException e) {
+            LOG.error("Error trying to get elasticsearch client service DNS name", e);
+            throw new RuntimeException(e);
+        }
+        this.parameters.put("es-service-dns-name", esServiceDnsName);
+        LOG.info("es-service-dns-name: " + this.parameters.get("es-service-dns-name"));
+        this.parameters.put("es-port", System.getenv("ES_PORT"));
+        LOG.info("es-port: " + this.parameters.get("es-port"));
     }
 
     public static void main( String[] args ) throws UnknownHostException, InvalidTopologyException,
@@ -68,7 +79,8 @@ public class BitcoinMonitoring {
         LOG.debug("Registering Kafka spout...");
         builder.setSpout("btc-tx-spout", new KafkaSpout<>(spoutConfig), 5).setNumTasks(5);
         LOG.debug("Registering BitcoinTransactionsBolt...");
-        builder.setBolt("btc-tx-bolt", new BitcoinTransactionsBolt(), 5).setNumTasks(10)
+        builder.setBolt("btc-tx-bolt", new BitcoinTransactionsBolt(this.parameters.get("es-service-dns-name"),
+                this.parameters.get("es-port")), 5).setNumTasks(10)
                 .shuffleGrouping("btc-tx-spout");
 
         StormTopology topology = builder.createTopology();

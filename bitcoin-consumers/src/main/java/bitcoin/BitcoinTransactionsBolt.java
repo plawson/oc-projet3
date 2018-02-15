@@ -16,8 +16,6 @@ import org.elasticsearch.rest.RestStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.net.InetAddress;
-import java.net.UnknownHostException;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -28,27 +26,29 @@ public class BitcoinTransactionsBolt extends BaseRichBolt {
 
     private OutputCollector collector;
     private RestHighLevelClient esClient;
+    private String esHostname;
+    private  int esPort;
+
+    BitcoinTransactionsBolt(String esHostname, String esPort) {
+        this.esHostname = esHostname;
+        this.esPort = Integer.parseInt(esPort);
+    }
 
     @Override
     public void prepare(Map map, TopologyContext topologyContext, OutputCollector collector) {
         this.collector = collector;
-        String serviceDnsName;
-        try {
-            serviceDnsName = InetAddress.getByName(System.getenv("ES_CS_SERVICE")).getHostName();
-        } catch (UnknownHostException e) {
-            LOGGER.error("Error trying to get elasticsearch client service DNS name", e);
-           throw new RuntimeException(e);
-        }
-
-        RestClient restClient = RestClient.builder(new HttpHost(serviceDnsName,
-                Integer.parseInt(System.getenv("ES_PORT")), "http"))
+        LOGGER.debug("Creating REST High Level Client...");
+        RestClient restClient = RestClient.builder(new HttpHost(this.esHostname,
+                this.esPort, "http"))
                 .build();
         this.esClient = new RestHighLevelClient(restClient);
+        LOGGER.debug("REST High Level Client created.");
     }
 
     @Override
     public void execute(Tuple input) {
 
+        LOGGER.debug("Executing tuple");
         try {
             this.process(input);
             this.collector.ack(input);
