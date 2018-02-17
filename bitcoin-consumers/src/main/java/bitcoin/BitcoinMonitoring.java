@@ -34,8 +34,11 @@ public class BitcoinMonitoring {
         // Get topics information
         LOG.info("Getting Topics information...");
         this.parameters.put("btc-tx-topic", System.getenv("BTC_TX_TOPIC_NAME"));
+        LOG.info("btc-tx-topic: " + this.parameters.get("btc-tx-topic"));
         this.parameters.put("btc-blk-topic", System.getenv("BTC_BLK_TOPIC_NAME"));
+        LOG.info("btc-blk-topic: " + this.parameters.get("btc-blk-topic"));
         this.parameters.put("bpi-topic", System.getenv("BPI_TOPIC_NAME"));
+        LOG.info("bpi-topic: " + this.parameters.get("bpi-topic"));
         // Get Kafka brokers information
         this.parameters.put("brokers", getKafkaBrokers());
         LOG.info("bootstrap_servers: " + this.parameters.get("brokers"));
@@ -88,12 +91,13 @@ public class BitcoinMonitoring {
         Config config = new Config();
         config.setMessageTimeoutSecs(60*30);
         config.setNumWorkers(3);
-        String topolotyName = "Bitcoin Transactions - " + System.currentTimeMillis();
+        String topolotyName = "Bitcoin_Transactions_" + System.currentTimeMillis();
 
-        LOG.info("Submitting Bitcoin Transactions topology...");
         if (args.length > 0 && args[0].equals("remote")) {
+            LOG.info("Submitting Bitcoin Transactions topology to remote cluster...");
             StormSubmitter.submitTopology(topolotyName, config, topology);
         } else {
+            LOG.info("Submitting Bitcoin Transactions topology to local cluster...");
             LocalCluster cluster = new LocalCluster();
             cluster.submitTopology(topolotyName, config, topology);
         }
