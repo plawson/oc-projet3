@@ -108,7 +108,7 @@ public class BitcoinMonitoring {
         StringBuilder brokers = new StringBuilder();
         InetAddress[] brokersAddresses = InetAddress.getAllByName(System.getenv("KAFKA_HS_SERVICE"));
         for (int i=0; i<brokersAddresses.length; i++) {
-            brokers.append(brokersAddresses[i].getHostName()).append(":")
+            brokers.append(brokersAddresses[i].getCanonicalHostName()).append(":")
                     .append(System.getenv("KAFKA_BROKER_PORT"));
             if (i != (brokersAddresses.length - 1)) brokers.append(",");
         }
