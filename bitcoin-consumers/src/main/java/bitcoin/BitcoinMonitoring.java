@@ -44,7 +44,7 @@ public class BitcoinMonitoring {
         LOG.info("bootstrap_servers: " + this.parameters.get("brokers"));
         String esServiceDnsName;
         try {
-            esServiceDnsName = InetAddress.getByName(System.getenv("ES_CS_SERVICE")).getHostName();
+            esServiceDnsName = InetAddress.getByName(System.getenv("ES_CS_SERVICE")).getCanonicalHostName();
         } catch (UnknownHostException e) {
             LOG.error("Error trying to get elasticsearch client service DNS name", e);
             throw new RuntimeException(e);

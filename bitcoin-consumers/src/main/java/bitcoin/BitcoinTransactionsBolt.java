@@ -31,7 +31,9 @@ public class BitcoinTransactionsBolt extends BaseRichBolt {
 
     BitcoinTransactionsBolt(String esHostname, String esPort) {
         this.esHostname = esHostname;
+        LOGGER.info("esHostname: " + this.esHostname);
         this.esPort = Integer.parseInt(esPort);
+        LOGGER.info("esPort: " + this.esPort);
     }
 
     @Override
