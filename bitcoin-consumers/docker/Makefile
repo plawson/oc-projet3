@@ -15,6 +15,7 @@ push: build
 
 clean:
 	@cd ..; mvn clean;
+	@rm -f ./bitcoin-consumers-1.0-SNAPSHOT.jar
 	$(eval IMAGE_ID=$(shell sh -c "docker images | grep $(IMG_NAME) | grep latest" | awk '{print $$3}'))
 	@if [ ! -z $(IMAGE_ID) ]; then \
 		docker rmi $(IMAGE_ID) --force; \

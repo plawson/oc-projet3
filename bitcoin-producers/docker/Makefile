@@ -12,7 +12,9 @@ push: build
 
 clean:
 	$(eval IMAGE_ID=$(shell sh -c "docker images | grep bitcoin-kafka-producers | grep latest" | awk '{print $$3}'))
-	docker rmi $(IMAGE_ID) --force
+	@if [ ! -z $(IMAGE_ID) ]; then \
+		docker rmi $(IMAGE_ID) --force; \
+	fi;
 	$(eval DEPLOY_NAME=$(shell sh -c "kubectl get deploy | grep $(BTC_PRODUCERS)" | awk '{print $$1}'))
 	@if [ ! -z $(DEPLOY_NAME) ]; then \
 		kubectl delete deploy  $(DEPLOY_NAME); \

@@ -5,7 +5,8 @@ RUN set -ex \
     && apt-get install -y python3-pip \
     && pip3 install websocket-client \
     && pip3 install kafka-python \
-    && pip3 install requests
+    && pip3 install requests \
+    && apt-get install -y vim
 
 RUN set -ex \
     && mkdir /btc
