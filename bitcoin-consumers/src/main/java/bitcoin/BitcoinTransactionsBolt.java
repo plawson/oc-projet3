@@ -56,6 +56,7 @@ public class BitcoinTransactionsBolt extends BaseRichBolt {
             this.collector.ack(input);
         } catch (Exception e) {
 
+            LOGGER.error("Index command failed", e);
             this.collector.fail(input);
         }
     }
@@ -83,6 +84,7 @@ public class BitcoinTransactionsBolt extends BaseRichBolt {
         jsonMap.put("tx_eur_amount", txEurAmount);
 
         IndexRequest indexRequest = new IndexRequest("bitcoin_monitoring", "btc_tx", txId).source(jsonMap);
+        LOGGER.info("Indexing BTC TX: " + txId);
         IndexResponse indexResponse = this.esClient.index(indexRequest);
         if (!indexResponse.status().equals(RestStatus.ACCEPTED)) {
             throw new Exception("ES index failed: " + indexResponse.toString());
