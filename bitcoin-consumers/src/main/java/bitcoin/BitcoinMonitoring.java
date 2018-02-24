@@ -91,7 +91,8 @@ public class BitcoinMonitoring {
         Config config = new Config();
         config.setMessageTimeoutSecs(60*30);
         config.setNumWorkers(3);
-        String topolotyName = "Bitcoin_Transactions_" + System.currentTimeMillis();
+        // String topolotyName = "Bitcoin_Transactions_" + System.currentTimeMillis();
+        String topolotyName = "Bitcoin-Transactions";
 
         if (args.length > 0 && args[0].equals("remote")) {
             LOG.info("Submitting Bitcoin Transactions topology to remote cluster...");

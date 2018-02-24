@@ -20,15 +20,17 @@ clean:
 	@if [ ! -z $(IMAGE_ID) ]; then \
 		docker rmi $(IMAGE_ID) --force; \
 	fi;
-	$(eval DEPLOY_NAME=$(shell sh -c "kubectl get deploy | grep $(BTC_TOPOLOGIES)" | awk '{print $$1}'))
+	$(eval DEPLOY_NAME=$(shell sh -c "kubectl get job | grep $(BTC_TOPOLOGIES)" | awk '{print $$1}'))
 	@if [ ! -z $(DEPLOY_NAME) ]; then \
-		kubectl delete deploy  $(DEPLOY_NAME); \
+		kubectl delete job  $(DEPLOY_NAME); \
 	fi;
 
 deploy: build push
 	$(eval ES_CONTAINER_PORT=$(shell sh -c "kubectl get rc es-client -o jsonpath='{.spec.template.spec.containers[0].ports[?(@.name==\"http\")].containerPort}'"))
 	$(eval KAFKA_CONTAINER_PORT=$(shell sh -c "kubectl get sts kafka -o jsonpath='{.spec.template.spec.containers[0].ports[0].containerPort}'"))
 	kubectl run $(BTC_TOPOLOGIES) --image=${REGISTRY}/$(IMG_NAME):latest \
+	--replicas=1 \
+	--restart=OnFailure \
 	--env="BTC_TX_TOPIC_NAME=btc_tx" \
 	--env="BTC_BLK_TOPIC_NAME=btc_blk" \
 	--env="BPI_TOPIC_NAME=bpi_eur" \
