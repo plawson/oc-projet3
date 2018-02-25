@@ -3,6 +3,9 @@ package bitcoin;
 import org.apache.storm.Config;
 import org.apache.storm.LocalCluster;
 import org.apache.storm.StormSubmitter;
+import org.apache.storm.elasticsearch.bolt.EsIndexBolt;
+import org.apache.storm.elasticsearch.common.EsConfig;
+import org.apache.storm.elasticsearch.common.EsTupleMapper;
 import org.apache.storm.generated.AlreadyAliveException;
 import org.apache.storm.generated.AuthorizationException;
 import org.apache.storm.generated.InvalidTopologyException;
@@ -33,15 +36,15 @@ public class BitcoinMonitoring {
         this.parameters = new HashMap<>();
         // Get topics information
         LOG.info("Getting Topics information...");
-        this.parameters.put("btc-tx-topic", System.getenv("BTC_TX_TOPIC_NAME"));
-        LOG.info("btc-tx-topic: " + this.parameters.get("btc-tx-topic"));
-        this.parameters.put("btc-blk-topic", System.getenv("BTC_BLK_TOPIC_NAME"));
-        LOG.info("btc-blk-topic: " + this.parameters.get("btc-blk-topic"));
-        this.parameters.put("bpi-topic", System.getenv("BPI_TOPIC_NAME"));
-        LOG.info("bpi-topic: " + this.parameters.get("bpi-topic"));
+        this.parameters.put(Constants.BTC_TX_TOPIC, System.getenv("BTC_TX_TOPIC_NAME"));
+        LOG.info(Constants.BTC_TX_TOPIC + ": " + this.parameters.get(Constants.BTC_TX_TOPIC));
+        this.parameters.put(Constants.BTC_BLK_TOPIC, System.getenv("BTC_BLK_TOPIC_NAME"));
+        LOG.info(Constants.BTC_BLK_TOPIC + ": " + this.parameters.get(Constants.BTC_BLK_TOPIC));
+        this.parameters.put(Constants.BPI_TOPIC, System.getenv("BPI_TOPIC_NAME"));
+        LOG.info(Constants.BPI_TOPIC + ": " + this.parameters.get(Constants.BPI_TOPIC));
         // Get Kafka brokers information
-        this.parameters.put("brokers", getKafkaBrokers());
-        LOG.info("bootstrap_servers: " + this.parameters.get("brokers"));
+        this.parameters.put(Constants.BROKERS, getKafkaBrokers());
+        LOG.info(Constants.BROKERS + ": " + this.parameters.get(Constants.BROKERS));
         String esServiceDnsName;
         try {
             esServiceDnsName = InetAddress.getByName(System.getenv("ES_CS_SERVICE")).getCanonicalHostName();
@@ -49,10 +52,15 @@ public class BitcoinMonitoring {
             LOG.error("Error trying to get elasticsearch client service DNS name", e);
             throw new RuntimeException(e);
         }
-        this.parameters.put("es-cs-service", esServiceDnsName);
-        LOG.info("es-cs-service: " + this.parameters.get("es-cs-service"));
-        this.parameters.put("es-port", System.getenv("ES_PORT"));
-        LOG.info("es-port: " + this.parameters.get("es-port"));
+        this.parameters.put(Constants.ES_CS_SERVICE, esServiceDnsName);
+        LOG.info(Constants.ES_CS_SERVICE + ": " + this.parameters.get(Constants.ES_CS_SERVICE));
+        this.parameters.put(Constants.ES_PORT, System.getenv("ES_PORT"));
+        LOG.info(Constants.ES_PORT + ": " + this.parameters.get(Constants.ES_PORT));
+        this.parameters.put(Constants.ES_CLUSTER_NAME, System.getenv("ES_CLUSTER_NAME"));
+        LOG.info(Constants.ES_CLUSTER_NAME + ": " + this.parameters.get(Constants.ES_CLUSTER_NAME));
+
+        this.parameters.put(Constants.INDEX_NAME, "bitcoin_monitoring");
+        this.parameters.put(Constants.BTC_TX_TYPE, "btc_tx");
     }
 
     public static void main( String[] args ) throws UnknownHostException, InvalidTopologyException,
@@ -74,24 +82,34 @@ public class BitcoinMonitoring {
 
         LOG.info("Creating Kafka spout config builder...");
         KafkaSpoutConfig.Builder<String, String> spoutConfigBuilder;
-        spoutConfigBuilder = KafkaSpoutConfig.builder(this.parameters.get("brokers"),
-                this.parameters.get("btc-tx-topic"));
-        spoutConfigBuilder.setGroupId("btc-tx-consumers");
+        spoutConfigBuilder = KafkaSpoutConfig.builder(this.parameters.get(Constants.BROKERS),
+                this.parameters.get(Constants.BTC_TX_TOPIC));
+        spoutConfigBuilder.setProp("group.id", Constants.BTC_TX_CONSUMERS);
+        spoutConfigBuilder.setFirstPollOffsetStrategy(KafkaSpoutConfig.FirstPollOffsetStrategy.UNCOMMITTED_LATEST);
+        spoutConfigBuilder.setProcessingGuarantee(KafkaSpoutConfig.ProcessingGuarantee.AT_LEAST_ONCE);
+
         LOG.info("Building Kafka spout config builder...");
         KafkaSpoutConfig<String, String> spoutConfig = spoutConfigBuilder.build();
         LOG.info("Registering Kafka spout...");
-        builder.setSpout("btc-tx-spout", new KafkaSpout<>(spoutConfig), 5).setNumTasks(5);
-        LOG.info("Registering BitcoinTransactionsBolt...");
-        builder.setBolt("btc-tx-bolt", new BitcoinTransactionsBolt(this.parameters.get("es-cs-service"),
-                this.parameters.get("es-port")), 5).setNumTasks(10)
-                .shuffleGrouping("btc-tx-spout");
+        builder.setSpout(Constants.BTC_TX_SPOUT, new KafkaSpout<>(spoutConfig), 5).setNumTasks(5);
+        LOG.info("Registering BitcoinTransactionsParsingBolt...");
+        builder.setBolt(Constants.BTC_TX_PARSING_BOLT, new BitcoinTransactionsParsingBolt(this.parameters), 5).setNumTasks(10)
+                .shuffleGrouping(Constants.BTC_TX_SPOUT);
+
+        LOG.info("Configuring " + Constants.BTC_TX_ES_BOLT);
+        EsConfig esConfig = new EsConfig(this.parameters.get(Constants.ES_CLUSTER_NAME),
+                new String[] {this.parameters.get(Constants.ES_CS_SERVICE) + ":" + this.parameters.get(Constants.ES_PORT)});
+        LOG.info("Initializing BTC Tx Elasticsearch tuple mapper");
+        EsTupleMapper esTupleMapper = new BitcoinTransactionEsTupleMapper();
+        EsIndexBolt esIndexBolt = new EsIndexBolt(esConfig, esTupleMapper);
+        LOG.info("Registering " + Constants.BTC_TX_ES_BOLT);
+        builder.setBolt(Constants.BTC_TX_ES_BOLT, esIndexBolt, 5).setNumTasks(10).shuffleGrouping(Constants.BTC_TX_PARSING_BOLT);
 
         StormTopology topology = builder.createTopology();
 
         Config config = new Config();
         config.setMessageTimeoutSecs(60*30);
         config.setNumWorkers(3);
-        // String topolotyName = "Bitcoin_Transactions_" + System.currentTimeMillis();
         String topolotyName = "Bitcoin-Transactions";
 
         if (args.length > 0 && args[0].equals("remote")) {

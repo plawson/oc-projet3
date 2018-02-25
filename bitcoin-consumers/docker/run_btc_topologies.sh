@@ -3,7 +3,7 @@
 set -x
 
 function usage {
-	echo "$0: [-h] | --btc-tx-topic BTC_TX_TOPIC_NAME --btc-blk-topic BTC_BLK_TOPIC_NAME --bpi-topic BPI_TOPIC_NAME --kafka-hs-service KAFKA_HS_SERVICE --kafka-broker-port KAFKA_BROKER_PORT --es-cs-service ES_CS_SERVICE -es-port ES_PORT"
+	echo "$0: [-h] | --btc-tx-topic BTC_TX_TOPIC_NAME --btc-blk-topic BTC_BLK_TOPIC_NAME --bpi-topic BPI_TOPIC_NAME --kafka-hs-service KAFKA_HS_SERVICE --kafka-broker-port KAFKA_BROKER_PORT --es-cs-service ES_CS_SERVICE -es-port ES_PORT -es-cluster ES_CLUSTER_NAME"
 	exit 1
 }
 
@@ -48,6 +48,11 @@ do
 		shift # past argument
 		shift # past value
 		;;
+		--es-cluster)
+		ES_CLUSTER_NAME="$2"
+		shift # past argument
+		shift # past value
+		;;
 		-h)
 		usage
 		;;
@@ -69,6 +74,7 @@ KAFKA_HS_SERVICE="${KAFKA_HS_SERVICE// }"
 KAFKA_BROKER_PORT="${KAFKA_BROKER_PORT// }"
 ES_CS_SERVICE="${ES_CS_SERVICE// }"
 ES_PORT="${ES_PORT// }"
+ES_CLUSTER_NAME="${ES_CLUSTER_NAME// }"
 
 
 # Check input parameters
@@ -94,6 +100,11 @@ fi
 
 if [[ -z "$ES_PORT" ]]; then
     echo "ERROR: Elasticsearch port is mandatory"
+    usage
+fi
+
+if [[ -z "$ES_CLUSTER_NAME" ]]; then
+    echo "ERROR: Elasticsearch cluster name is mandatory"
     usage
 fi
 

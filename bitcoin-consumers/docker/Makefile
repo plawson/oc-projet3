@@ -27,6 +27,7 @@ clean:
 
 deploy: build push
 	$(eval ES_CONTAINER_PORT=$(shell sh -c "kubectl get rc es-client -o jsonpath='{.spec.template.spec.containers[0].ports[?(@.name==\"http\")].containerPort}'"))
+	$(eval ES_CLUSTER_NAME=$(shell sh -c "kubectl get rc es-client -o jsonpath='{.spec.template.spec.containers[0].env[?(@.name==\"CLUSTER_NAME\")].value}'"))
 	$(eval KAFKA_CONTAINER_PORT=$(shell sh -c "kubectl get sts kafka -o jsonpath='{.spec.template.spec.containers[0].ports[0].containerPort}'"))
 	kubectl run $(BTC_TOPOLOGIES) --image=${REGISTRY}/$(IMG_NAME):latest \
 	--replicas=1 \
@@ -37,6 +38,7 @@ deploy: build push
 	--env="KAFKA_HS_SERVICE=kafka-hs" \
 	--env="KAFKA_BROKER_PORT=$(KAFKA_CONTAINER_PORT)" \
 	--env="ES_CS_SERVICE=elasticsearch" \
-	--env="ES_PORT=$(ES_CONTAINER_PORT)"
+	--env="ES_PORT=$(ES_CONTAINER_PORT)" \
+	--env="ES_CLUSTER_NAME=$(ES_CLUSTER_NAME)"
 
 .PHONY: all build push clean deploy
