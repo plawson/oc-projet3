@@ -91,7 +91,7 @@ TOPIC_CMD="bin/kafka-topics.sh --zookeeper $BTC_ZK_STRING"
 for topic in $BTC_BLK_TOPIC_NAME $BPI_TOPIC_NAME; do
     RESULT=$($TOPIC_CMD --list | egrep "^"$topic"$" 2>&1 1>/dev/null; echo $?)
     if [[ $RESULT -ne 0 ]]; then
-        $TOPIC_CMD --create --topic $topic --partitions 1 --replication-factor 2
+        $TOPIC_CMD --create --topic $topic --partitions 1 --replication-factor 3
         if [[ $? -ne 0 ]]; then
             echo "ERROR: Cannot create topic $topic"
             exit 1
@@ -101,7 +101,7 @@ done
 
 RESULT=$($TOPIC_CMD --list | egrep "^"$BTC_TX_TOPIC_NAME"$" 2>&1 1>/dev/null; echo $?)
 if [[ $RESULT -ne 0 ]]; then
-    $TOPIC_CMD --create --topic $BTC_TX_TOPIC_NAME --partitions 10 --replication-factor 2
+    $TOPIC_CMD --create --topic $BTC_TX_TOPIC_NAME --partitions 10 --replication-factor 3
     if [[ $? -ne 0 ]]; then
         echo "ERROR: Cannot create topic $BTC_TX_TOPIC_NAME"
         exit 1
