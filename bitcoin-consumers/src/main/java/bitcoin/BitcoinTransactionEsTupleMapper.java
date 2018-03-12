@@ -5,6 +5,8 @@ import org.apache.storm.tuple.ITuple;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Map;
+
 /**
  * Created by plawson on 25/02/2018.
  *
@@ -36,5 +38,10 @@ public class BitcoinTransactionEsTupleMapper implements EsTupleMapper {
     public String getId(ITuple tuple) {
         LOG.debug("Source: " + tuple.getStringByField(Constants.BTC_TX_FIELD_TX_ID));
         return tuple.getStringByField(Constants.BTC_TX_FIELD_TX_ID);
+    }
+
+    @Override
+    public Map<String, String> getParams(ITuple iTuple, Map<String, String> map) {
+        return null;
     }
 }

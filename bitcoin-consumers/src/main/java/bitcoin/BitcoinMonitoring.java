@@ -97,8 +97,7 @@ public class BitcoinMonitoring {
                 .shuffleGrouping(Constants.BTC_TX_SPOUT);
 
         LOG.info("Configuring " + Constants.BTC_TX_ES_BOLT);
-        EsConfig esConfig = new EsConfig(this.parameters.get(Constants.ES_CLUSTER_NAME),
-                new String[] {this.parameters.get(Constants.ES_CS_SERVICE) + ":" + this.parameters.get(Constants.ES_PORT)});
+        EsConfig esConfig = new EsConfig("http://" + this.parameters.get(Constants.ES_CS_SERVICE) + ":" + this.parameters.get(Constants.ES_PORT));
         LOG.info("Initializing BTC Tx Elasticsearch tuple mapper");
         EsTupleMapper esTupleMapper = new BitcoinTransactionEsTupleMapper();
         EsIndexBolt esIndexBolt = new EsIndexBolt(esConfig, esTupleMapper);

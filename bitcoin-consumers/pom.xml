@@ -25,19 +25,19 @@
     <dependency>
       <groupId>org.apache.storm</groupId>
       <artifactId>storm-core</artifactId>
-      <version>1.1.2</version>
+      <version>1.2.1</version>
       <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>org.apache.storm</groupId>
       <artifactId>storm-kafka-client</artifactId>
-      <version>1.1.2</version>
+      <version>1.2.1</version>
       <scope>compile</scope>
     </dependency>
     <dependency>
       <groupId>org.apache.storm</groupId>
       <artifactId>storm-elasticsearch</artifactId>
-      <version>1.1.2</version>
+      <version>1.2.1</version>
     </dependency>
 
     <dependency>
