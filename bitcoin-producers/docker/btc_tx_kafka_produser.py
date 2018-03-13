@@ -86,7 +86,7 @@ class Producer:
                 blk_data = {'btc_timestamp': block_timestamp, 'blk_id': block_hash, 'blk_owner': block_found_by,
                             'blk_btc_reward': block_reward}
                 self.logger.debug('Sending BTC Blk record...')
-                self.producer.send(self.topics['bpi-topic'], json.dumps(blk_data).encode())
+                self.producer.send(self.topics['btc-blk-topic'], json.dumps(blk_data).encode())
 
     def open_websocket_to_blockchain(self):
         self.logger.debug('Opening websocket...')
