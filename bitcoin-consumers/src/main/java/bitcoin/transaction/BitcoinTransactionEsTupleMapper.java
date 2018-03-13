@@ -1,5 +1,6 @@
-package bitcoin;
+package bitcoin.transaction;
 
+import bitcoin.common.Constants;
 import org.apache.storm.elasticsearch.common.EsTupleMapper;
 import org.apache.storm.tuple.ITuple;
 import org.slf4j.Logger;
