@@ -27,7 +27,7 @@ public class Constants {
     public static final String BTC_BLK_CONSUMERS = "btc-blk-consumers";
     public static final String BTC_BLK_SPOUT = "btc-blk-spout";
     public static final String BTC_BLK_PARSING_BOLT = "btc-blk-parsing-bolt";
-    public static final String BTC_BLK_ES_BOLT = "btc-tx-es-bolt";
+    public static final String BTC_BLK_ES_BOLT = "btc-blk-es-bolt";
 
     public static final String BPI_CONSUMERS = "bpi-consumers";
     public static final String BPI_SPOUT = "bpi-spout";
