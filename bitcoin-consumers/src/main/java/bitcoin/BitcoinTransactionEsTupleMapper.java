@@ -5,6 +5,7 @@ import org.apache.storm.tuple.ITuple;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -42,6 +43,9 @@ public class BitcoinTransactionEsTupleMapper implements EsTupleMapper {
 
     @Override
     public Map<String, String> getParams(ITuple iTuple, Map<String, String> map) {
-        return null;
+        // Force create operation and fails if BTC tx_id already exists
+        Map<String, String> params = new HashMap<>();
+        params.put(Constants.OP_TYPE, Constants.OP_TYPE_CREATE);
+        return params;
     }
 }

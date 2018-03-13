@@ -30,4 +30,7 @@ public class Constants {
     public static final String BTC_TX_FIELD_TYPE = "tx_type";
 
     public static final String SOURCE = "source";
+
+    public static final String OP_TYPE = "op_type";
+    public static final String OP_TYPE_CREATE = "create";
 }
