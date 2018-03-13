@@ -11,11 +11,12 @@ RUN set -ex \
 RUN set -ex \
     && mkdir /btc
 
-ADD run_btc_producers.sh btc_kafka_producer.py btc_logging.conf /btc/
+ADD run_btc_producers.sh btc_tx_kafka_producer.py btc_bpi_kafka_producer.py btc_logging.conf /btc/
 
 RUN set -ex \
     && chmod 755 /btc/run_btc_producers.sh \
-    && chmod 755 /btc/btc_kafka_producer.py \
+    && chmod 755 /btc/btc_tx_kafka_producer.py \
+    && chmod 755 /btc/btc_bpi_kafka_producer.py \
     && chmod 644 /btc/btc_logging.conf
 
 CMD ["/btc/run_btc_producers.sh"]
