@@ -66,6 +66,7 @@ PY_PRODUCER_SCRIPT="${PY_PRODUCER_SCRIPT// }"
 # Check python script
 if [[ -z "$PY_PRODUCER_SCRIPT" || ! -x "/btc/$PY_PRODUCER_SCRIPT" ]]; then
 	echo "ERROR: env variable PY_PRODUCER_SCRIPT is not properly set"
+	exit 1
 fi
 
 # Check input parameters

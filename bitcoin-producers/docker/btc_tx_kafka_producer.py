@@ -120,6 +120,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument('--btc-tx-topic', help="Topic name for bitcoin transaction", required=True)
     parser.add_argument('--btc-blk-topic', help="Topic name for new block", required=True)
+    parser.add_argument('--bpi-topic', help="Topic name for bitcoin price index")
     parser.add_argument('--kafka-hs-service', help="Kafka kubernetes headless service name", required=True)
     parser.add_argument('--kafka-broker-port', help="Kafka broker port", required=True)
 

@@ -43,7 +43,7 @@ deploybpi: build push
 	--env="BPI_TOPIC_NAME=bpi_eur" \
 	--env="BTC_ZK_STRING=zk-cs.default.svc.cluster.local:2181" \
 	--env="KAFKA_HS_SERVICE=kafka-hs" \
-	--env="KAFKA_BROKER_PORT=$(CONTAINER_PORT)"\
+	--env="KAFKA_BROKER_PORT=$(CONTAINER_PORT)" \
 	--env="PY_PRODUCER_SCRIPT=btc_bpi_kafka_producer.py"
 
 deploytx: build push
@@ -54,7 +54,7 @@ deploytx: build push
 	--env="BPI_TOPIC_NAME=bpi_eur" \
 	--env="BTC_ZK_STRING=zk-cs.default.svc.cluster.local:2181" \
 	--env="KAFKA_HS_SERVICE=kafka-hs" \
-	--env="KAFKA_BROKER_PORT=$(CONTAINER_PORT)"
+	--env="KAFKA_BROKER_PORT=$(CONTAINER_PORT)" \
 	--env="PY_PRODUCER_SCRIPT=btc_tx_kafka_producer.py"
 
 .PHONY: all build push clean deploy cleantx cleanbpi deploybpi deploytx
