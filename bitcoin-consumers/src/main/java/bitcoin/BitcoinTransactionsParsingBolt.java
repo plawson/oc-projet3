@@ -14,6 +14,7 @@ import org.apache.storm.tuple.Values;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Map;
 
@@ -23,9 +24,12 @@ public class BitcoinTransactionsParsingBolt extends BaseRichBolt {
 
     private OutputCollector collector;
     private Map<String, String> peremeters;
+    private SimpleDateFormat sdf;
 
     public BitcoinTransactionsParsingBolt(Map<String, String> parameters) {
+
         this.peremeters = parameters;
+        this.sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS");
     }
 
     @Override
@@ -73,7 +77,7 @@ public class BitcoinTransactionsParsingBolt extends BaseRichBolt {
         LOGGER.debug("txEurAmount: " + txEurAmount);
 
         JSONObject source = new JSONObject();
-        source.put(Constants.BTC_TX_FIELD_DATE, btcTimestamp);
+        source.put(Constants.BTC_TX_FIELD_DATE, sdf.format(btcTimestamp));
         source.put(Constants.BTC_TX_FIELD_TX_BTC_AMOUNT, txBtcAmount);
         source.put(Constants.BTC_TX_FIELD_TX_EUR_AMOUNT, txEurAmount);
 

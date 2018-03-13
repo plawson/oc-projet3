@@ -25,19 +25,19 @@ public class BitcoinTransactionEsTupleMapper implements EsTupleMapper {
 
     @Override
     public String getIndex(ITuple tuple) {
-        LOG.debug("Source: " + tuple.getStringByField(Constants.BTC_TX_FIELD_INDEX));
+        LOG.debug("Index: " + tuple.getStringByField(Constants.BTC_TX_FIELD_INDEX));
         return tuple.getStringByField(Constants.BTC_TX_FIELD_INDEX);
     }
 
     @Override
     public String getType(ITuple tuple) {
-        LOG.debug("Source: " + tuple.getStringByField(Constants.BTC_TX_FIELD_TYPE));
+        LOG.debug("Type: " + tuple.getStringByField(Constants.BTC_TX_FIELD_TYPE));
         return tuple.getStringByField(Constants.BTC_TX_FIELD_TYPE);
     }
 
     @Override
     public String getId(ITuple tuple) {
-        LOG.debug("Source: " + tuple.getStringByField(Constants.BTC_TX_FIELD_TX_ID));
+        LOG.debug("Id: " + tuple.getStringByField(Constants.BTC_TX_FIELD_TX_ID));
         return tuple.getStringByField(Constants.BTC_TX_FIELD_TX_ID);
     }
 
