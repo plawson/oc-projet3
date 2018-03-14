@@ -7,6 +7,10 @@ import bitcoin.price.BitcoinPriceIndexEsTupleMapper;
 import bitcoin.price.BitcoinPriceIndexParsingBolt;
 import bitcoin.transaction.BitcoinTransactionEsTupleMapper;
 import bitcoin.transaction.BitcoinTransactionsParsingBolt;
+import org.apache.http.Header;
+import org.apache.http.entity.ContentType;
+import org.apache.http.message.BasicHeader;
+import org.apache.http.protocol.HTTP;
 import org.apache.storm.Config;
 import org.apache.storm.LocalCluster;
 import org.apache.storm.StormSubmitter;
@@ -132,6 +136,8 @@ public class BitcoinMonitoring {
          */
         LOG.info("Configuring ES Config");
         EsConfig esConfig = new EsConfig("http://" + this.parameters.get(Constants.ES_CS_SERVICE) + ":" + this.parameters.get(Constants.ES_PORT));
+        Header[] headers = {new BasicHeader(HTTP.CONTENT_TYPE, ContentType.APPLICATION_JSON.toString())};
+        esConfig.withDefaultHeaders(headers);
         LOG.info("Initializing BTC Tx Elasticsearch tuple mapper");
         EsTupleMapper txEsTupleMapper = new BitcoinTransactionEsTupleMapper();
         EsIndexBolt txEsIndexBolt = new EsIndexBolt(esConfig, txEsTupleMapper);
