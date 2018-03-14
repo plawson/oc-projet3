@@ -40,6 +40,7 @@ public class BitcoinPriceIndexEsTupleMapper implements EsTupleMapper {
     @Override
     public Map<String, String> getParams(ITuple tuple, Map<String, String> map) {
         map.put(Constants.OP_TYPE, Constants.OP_TYPE_CREATE);
+        LOG.debug("getParams");
         return map;
     }
 }
