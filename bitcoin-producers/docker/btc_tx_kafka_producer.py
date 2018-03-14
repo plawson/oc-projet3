@@ -2,7 +2,6 @@
 
 from kafka import KafkaProducer
 from time import time
-from datetime import datetime, timezone
 import argparse
 import logging
 import logging.config
@@ -31,15 +30,6 @@ class Producer:
         self.topics = topics
         for key, value in topics.items():
             self.logger.debug('{}: {}'.format(key, value))
-        self._bpi_retry = 0
-
-    @property
-    def bpi_retry(self):
-        return self._bpi_retry
-
-    @bpi_retry.setter
-    def bpi_retry(self, val):
-        self._bpi_retry = val
 
     def process_inputs(self):
         ws = self.open_websocket_to_blockchain()
@@ -98,17 +88,6 @@ class Producer:
         self.logger.debug('Registering to block creation events...')
         ws.send(json.dumps({"op": "blocks_sub"}))  # Register to block creation events
         return ws
-
-    def extract_eur_index(self, bpi):
-        bpi_data = {}
-        iso_date = bpi['time']['updatedISO']
-        unix_date = datetime(int(iso_date[0:4]), int(iso_date[5:7]), int(iso_date[8:10]), int(iso_date[11:13]),
-                             int(iso_date[14:16]), int(iso_date[17:19]), tzinfo=timezone.utc).timestamp()
-        self.logger.debug('Building BPI data...')
-        bpi_data['btc_timestamp'] = unix_date
-        bpi_data['rate_float'] = bpi['bpi']['EUR']['rate_float']
-        bpi_data['currency'] = 'EUR'
-        return bpi_data
 
 
 if __name__ == "__main__":

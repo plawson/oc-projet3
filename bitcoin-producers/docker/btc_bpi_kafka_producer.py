@@ -57,6 +57,7 @@ class Producer:
                 bpi_data = self.extract_eur_index(self.get_bpi())
                 self.logger.debug('Sending BPI record...')
                 self.producer.send(self.topic, json.dumps(bpi_data).encode())
+                last_bpi_time = time()
 
     def get_bpi(self):
         resp = requests.get('https://api.coindesk.com/v1/bpi/currentprice.json')
