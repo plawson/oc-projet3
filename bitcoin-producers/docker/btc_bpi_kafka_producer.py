@@ -73,8 +73,8 @@ class Producer:
     def extract_eur_index(self, bpi):
         bpi_data = {}
         iso_date = bpi['time']['updatedISO']
-        unix_date = datetime(int(iso_date[0:4]), int(iso_date[5:7]), int(iso_date[8:10]), int(iso_date[11:13]),
-                             int(iso_date[14:16]), int(iso_date[17:19]), tzinfo=timezone.utc).timestamp()
+        unix_date = int(datetime(int(iso_date[0:4]), int(iso_date[5:7]), int(iso_date[8:10]), int(iso_date[11:13]),
+                             int(iso_date[14:16]), int(iso_date[17:19]), tzinfo=timezone.utc).timestamp())
         self.logger.debug('Building BPI data...')
         bpi_data['btc_timestamp'] = unix_date
         bpi_data['rate_float'] = bpi['bpi']['EUR']['rate_float']
