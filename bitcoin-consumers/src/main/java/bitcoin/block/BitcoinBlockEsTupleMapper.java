@@ -6,11 +6,15 @@ import org.apache.storm.tuple.ITuple;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.Map;
 
 public class BitcoinBlockEsTupleMapper implements EsTupleMapper {
 
     private static final Logger LOG = LoggerFactory.getLogger(BitcoinBlockEsTupleMapper.class);
+
+    private SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
 
     @Override
     public String getSource(ITuple tuple) {
@@ -20,8 +24,8 @@ public class BitcoinBlockEsTupleMapper implements EsTupleMapper {
 
     @Override
     public String getIndex(ITuple tuple) {
-        LOG.debug("Index: " + tuple.getStringByField(Constants.BTC_BLK_FIELD_INDEX));
-        return tuple.getStringByField(Constants.BTC_BLK_FIELD_INDEX);
+        LOG.debug("Index: " + tuple.getStringByField(Constants.BTC_BLK_FIELD_INDEX) + "-" + sdf.format(new Date()));
+        return tuple.getStringByField(Constants.BTC_BLK_FIELD_INDEX) + "-" + sdf.format(new Date());
     }
 
     @Override
