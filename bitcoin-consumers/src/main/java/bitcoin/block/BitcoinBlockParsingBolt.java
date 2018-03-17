@@ -96,9 +96,9 @@ public class BitcoinBlockParsingBolt extends ParsingBaseRichBolt {
                     this.parameters.get(Constants.BTC_BLK_TYPE),
                     blkId,
                     source.toJSONString()));
-
-            LOG.debug("Acknowledging BitcoinBlockParsingBolt input");
-            this.collector.ack(input);
         }
+
+        LOG.debug("Acknowledging BitcoinBlockParsingBolt input");
+        this.collector.ack(input);
     }
 }

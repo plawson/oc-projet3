@@ -67,8 +67,6 @@ public class BitcoinMonitoring {
         LOG.info(Constants.ES_CS_SERVICE + ": " + this.parameters.get(Constants.ES_CS_SERVICE));
         this.parameters.put(Constants.ES_PORT, System.getenv("ES_PORT"));
         LOG.info(Constants.ES_PORT + ": " + this.parameters.get(Constants.ES_PORT));
-        // this.parameters.put(Constants.ES_CLUSTER_NAME, System.getenv("ES_CLUSTER_NAME"));
-        // LOG.info(Constants.ES_CLUSTER_NAME + ": " + this.parameters.get(Constants.ES_CLUSTER_NAME));
 
         this.parameters.put(Constants.INDEX_NAME, "bitcoin_monitoring");
         this.parameters.put(Constants.BTC_TX_TYPE, "btc_tx");

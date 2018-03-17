@@ -99,10 +99,10 @@ public class BitcoinTransactionsParsingBolt extends ParsingBaseRichBolt {
                     this.parameters.get(Constants.BTC_TX_TYPE),
                     txId,
                     source.toJSONString()));
-
-            LOG.debug("Acknowledging BitcoinTransactionsParsingBolt input");
-            this.collector.ack(input);
         }
+
+        LOG.debug("Acknowledging BitcoinTransactionsParsingBolt input");
+        this.collector.ack(input);
 
     }
 }
