@@ -74,7 +74,11 @@ public class BitcoinPriceIndexParsingBolt extends BaseRichBolt {
         LOG.debug("btcTimestamp: " + btcTimestamp);
         String bpiId = UUID.randomUUID().toString();
         LOG.debug("bpiID: " + bpiId);
-        Double bpiRate = (Double)obj.get("rate_float");
+        Double bpiRate;
+        if (obj.get("rate_float") instanceof java.lang.Long)
+            bpiRate = ((Long)obj.get("rate_float")).doubleValue();
+        else
+            bpiRate = (Double)obj.get("rate_float");
         LOG.debug("bpiRate: " + bpiRate);
         String bpiCurrency = (String)obj.get("currency");
         LOG.debug("bpiCurrenct: " + bpiCurrency);

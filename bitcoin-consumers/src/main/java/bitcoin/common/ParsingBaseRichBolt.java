@@ -16,6 +16,9 @@ public abstract class ParsingBaseRichBolt extends BaseRichBolt {
         LOG.debug("getBpiEurRate");
         JSONParser jsonParser = new JSONParser();
         JSONObject obj = (JSONObject) jsonParser.parse(input.getStringByField("value"));
-        return (Double) obj.get("rate_float");
+        if (obj.get("rate_float") instanceof java.lang.Long)
+            return ((Long)obj.get("rate_float")).doubleValue();
+        else
+            return (Double) obj.get("rate_float");
     }
 }
